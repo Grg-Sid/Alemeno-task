@@ -1,0 +1,22 @@
+# exclude all the file except listed below files
+# ignore all the temp file created by vim
+*~
+*.swp
+*.swo
+*.log
+# ignore virtual env and temp files 
+.venv/
+#ignore sensitive information
+config/*
+data/*
+*.pyc
+*.pgpass
+__pycache__
+
+## Footnote
+#Upon updating gitignore to remove already commited file
+#run below command
+#git rm -rf --cached .
+#git add .
+#
+#This removes all the files from repo and adds them back, this time respecting rules in gitignore
