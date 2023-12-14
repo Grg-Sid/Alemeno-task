@@ -8,7 +8,7 @@
 .venv/
 #ignore sensitive information
 config/*
-data/*
+# data/*
 *.pyc
 *.pgpass
 __pycache__

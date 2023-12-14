@@ -1,50 +1,30 @@
-version: '3'
+version: "3"
 
 services:
-  postgres:
-    image: postgres:latest
+  # Django web application
+  web:
+    build: .
+    command: sh -c "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    environment:
+      - DATABASE_URL=postgres://postgres:password@db:5432/mydatabase
+    links:
+      - db
+
+  # PostgreSQL database
+  db:
+    image: postgres
     environment:
       POSTGRES_DB: postgres
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
-    ports:
-      - "5432:5432"
-    networks:
-      - app-network
-
-  rabbitmq:
-    image: "rabbitmq:3-management"
-    environment:
-      RABBITMQ_DEFAULT_USER: rabbitmq_user
-      RABBITMQ_DEFAULT_PASS: rabbitmq_password
-    ports:
-      - "5672:5672"
-      - "15672:15672"
-    networks:
-      - app-network
-
-  celery-worker-1:
-    build:
-      context: .
-    command: celery -A your_project_name worker --loglevel=info
     volumes:
-      - ./your_project:/app
-    depends_on:
-      - rabbitmq
-    networks:
-      - app-network
+      - postgres_data:/var/lib/postgresql/data
 
-  celery-worker-2:
-    build:
-      context: .
-    command: celery -A your_project_name worker --loglevel=info
-    volumes:
-      - ./your_project:/app
-    depends_on:
-      - rabbitmq
-    networks:
-      - app-network
-
-networks:
-  app-network:
-    driver: bridge
+volumes:
+  postgres_data:

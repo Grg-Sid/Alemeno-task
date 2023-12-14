@@ -35,13 +35,13 @@ class LoanViewSet(viewsets.ModelViewSet):
 
 class CheckLoanView(APIView):
     def post(self, request, *args, **kwargs):
-        customer_id = request.data.get("customer")
+        customer_id = request.data.get("customer_id")
         loan_amount = request.data.get("loan_amount")
         tenure = request.data.get("tenure")
         interest_rate = request.data.get("interest_rate")
         if not customer_id:
             return Response(
-                {"error": "Customer is required"},
+                {"error": "Customer_id is required"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
         if not loan_amount:
@@ -61,16 +61,16 @@ class CheckLoanView(APIView):
             )
         approval_status = utils.check_loan_approval(customer_id, loan_amount)
         corrected_interest_rate = utils.corrected_interest_rate(customer_id)
-        monthaly_installments = utils.calculate_monthaly_installment(
+        monthly_installments = utils.calculate_monthly_installment(
             loan_amount, tenure, corrected_interest_rate
         )
-        monthaly_installments = round(monthaly_installments, 2)
+        monthly_installments = round(monthly_installments, 2)
         response_data = {
             "loan_amount": loan_amount,
             "tenure": tenure,
             "corrected_interest_rate": corrected_interest_rate,
             "approval_status": approval_status,
-            "monthaly_installments": monthaly_installments,
+            "monthly_installments": monthly_installments,
         }
         return Response(response_data, status=status.HTTP_200_OK)
 

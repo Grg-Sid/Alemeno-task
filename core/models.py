@@ -6,7 +6,7 @@ class Customer(models.Model):
     last_name = models.CharField(max_length=200)
     age = models.IntegerField(default=18)
     phone = models.CharField(max_length=20, unique=True)
-    monthaly_salary = models.IntegerField()
+    monthly_salary = models.IntegerField()
     approved_limit = models.IntegerField()
 
 

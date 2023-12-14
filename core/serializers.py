@@ -16,25 +16,23 @@ class CustomerSerializer(serializers.ModelSerializer):
             "last_name",
             "age",
             "phone",
-            "monthaly_salary",
+            "monthly_salary",
         ]
 
     def validate(self, data):
         age = data.get("age")
-        monthaly_salary = data.get("monthaly_salary")
+        monthly_salary = data.get("monthly_salary")
         if age < 18:
             raise serializers.ValidationError("Age should be greater than 18")
-        if monthaly_salary < 1:
-            raise serializers.ValidationError(
-                "Monthaly salary should be greater than 0"
-            )
+        if monthly_salary < 1:
+            raise serializers.ValidationError("Monthly salary should be greater than 0")
         return data
 
     def create(self, validated_data):
-        monthaly_salary = validated_data.get("monthaly_salary")
-        rounded_salary = monthaly_salary
-        if monthaly_salary > 100000:
-            rounded_salary = (monthaly_salary // 100000) * 100000
+        monthly_salary = validated_data.get("monthly_salary")
+        rounded_salary = monthly_salary
+        if monthly_salary > 100000:
+            rounded_salary = (monthly_salary // 100000) * 100000
         approved_limit = 36 * rounded_salary
         validated_data["approved_limit"] = approved_limit
         return Customer.objects.create(**validated_data)
@@ -71,21 +69,27 @@ class LoanSerializer(serializers.ModelSerializer):
         return data
 
     def to_representation(self, instance):
-        data = super().to_representation(instance)
+        data = {}
+        data["loan_id"] = None
+        data["customer_id"] = instance.customer.id
         data["loan_approved"] = utils.check_loan_approval(
             instance.customer.id, instance.loan_amount
         )
+        data["monthly_installment"] = 0
+        if data["loan_approved"]:
+            data["loan_id"] = instance.id
+            emi = utils.calculate_monthly_installment(
+                instance.loan_amount, instance.tenure, instance.interest_rate
+            )
+            data["monthly_installment"] = round(emi, 2)
         data["message"] = (
             "Loan approved" if data["loan_approved"] else "Loan not approved"
         )
-        emi = utils.calculate_monthaly_installment(
-            instance.loan_amount, instance.tenure, instance.interest_rate
-        )
-        data["emi"] = round(emi, 2)
         return data
 
     def create(self, validated_data):
-        emi = utils.calculate_monthaly_installment(
+        status = False
+        emi = utils.calculate_monthly_installment(
             validated_data["loan_amount"],
             validated_data["tenure"],
             validated_data["interest_rate"],
@@ -97,4 +101,14 @@ class LoanSerializer(serializers.ModelSerializer):
             days=(validated_data["tenure"] + 1) * 30
         )
         utils.get_credit_rating(customer_id=validated_data["customer"].id)
-        return Loan.objects.create(**validated_data)
+        if utils.check_loan_approval(
+            validated_data["customer"].id, validated_data["loan_amount"]
+        ):
+            status = True
+        if status:
+            validated_data["interest_rate"] = utils.corrected_interest_rate(
+                validated_data["customer"].id
+            )
+            return Loan.objects.create(**validated_data)
+        else:
+            raise serializers.ValidationError("Loan not approved")

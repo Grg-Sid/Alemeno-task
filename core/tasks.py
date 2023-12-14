@@ -18,7 +18,7 @@ def add_customer_to_db(file_path):
                 last_name=row["Last Name"],
                 age=row["Age"],
                 phone=row["Phone Number"],
-                monthaly_salary=row["Monthly Salary"],
+                monthly_salary=row["Monthly Salary"],
                 approved_limit=row["Approved Limit"],
             )
             customer.save()
@@ -54,10 +54,8 @@ def add_loan_to_db(file_path):
         return "Error adding loan data"
 
 
-# Chain the tasks
 @shared_task
 def process_data(file_path):
-    # Chain the tasks: add_customer_to_db -> add_loan_to_db
     result = chain(add_customer_to_db.s(file_path), add_loan_to_db.s(file_path))()
 
     return result.get()

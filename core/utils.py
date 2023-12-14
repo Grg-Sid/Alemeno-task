@@ -28,11 +28,10 @@ def corrected_interest_rate(customer_id) -> int:
         corrected_interest_rate = 12
     if 30 > credit_rating > 10:
         corrected_interest_rate = 16
-    print(credit_rating, corrected_interest_rate)
     return corrected_interest_rate
 
 
-def calculate_monthaly_installment(loan_amount, tenure, interest_rate) -> int:
+def calculate_monthly_installment(loan_amount, tenure, interest_rate) -> int:
     monthly_interest_rate = interest_rate / (12 * 100)
     monthly_installment = (
         loan_amount
@@ -54,6 +53,7 @@ def get_current_debt(customer_id) -> int:
 
 def get_credit_rating(customer_id) -> int:
     credit_score = 100
+
     customer = Customer.objects.get(pk=customer_id)
     current_debt = get_current_debt(customer_id=customer_id)
     customer_loan = Loan.objects.filter(customer=customer_id)
@@ -62,6 +62,7 @@ def get_credit_rating(customer_id) -> int:
         start_date__year=timezone.now().year
     ).count()
     active_loans = 0
+
     if current_debt > customer.approved_limit:
         print(credit_score)
         return 0
@@ -71,5 +72,4 @@ def get_credit_rating(customer_id) -> int:
         credit_score -= 5 * active_loans
     if total_loans:
         credit_score -= 5 * total_loans
-    # return 69
     return credit_score if credit_score > 0 else 0
