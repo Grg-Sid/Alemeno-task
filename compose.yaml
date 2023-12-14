@@ -1,0 +1,50 @@
+version: '3'
+
+services:
+  postgres:
+    image: postgres:latest
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    networks:
+      - app-network
+
+  rabbitmq:
+    image: "rabbitmq:3-management"
+    environment:
+      RABBITMQ_DEFAULT_USER: rabbitmq_user
+      RABBITMQ_DEFAULT_PASS: rabbitmq_password
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    networks:
+      - app-network
+
+  celery-worker-1:
+    build:
+      context: .
+    command: celery -A your_project_name worker --loglevel=info
+    volumes:
+      - ./your_project:/app
+    depends_on:
+      - rabbitmq
+    networks:
+      - app-network
+
+  celery-worker-2:
+    build:
+      context: .
+    command: celery -A your_project_name worker --loglevel=info
+    volumes:
+      - ./your_project:/app
+    depends_on:
+      - rabbitmq
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge

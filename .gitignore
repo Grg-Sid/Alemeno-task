@@ -12,6 +12,7 @@ data/*
 *.pyc
 *.pgpass
 __pycache__
+db.sqlite3
 
 ## Footnote
 #Upon updating gitignore to remove already commited file

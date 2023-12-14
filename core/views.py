@@ -1,12 +1,28 @@
+import os
+
+from django.http import HttpResponse
 from rest_framework import viewsets, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
+
 from core.models import Customer, Loan
 from core.serializers import CustomerSerializer, LoanSerializer
+from core.tasks import add_customer_to_db, add_loan_to_db
 import core.utils as utils
+
+DATA_DIR = os.path.join(
+    os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data"
+)
 
 
 # Create your views here.
+def background_task(request):
+    add_customer_to_db.delay(os.path.join(DATA_DIR, "customer_data.xlsx"))
+    add_loan_to_db.delay(os.path.join(DATA_DIR, "loan_data.xlsx"))
+
+    return HttpResponse("Background task is running")
+
+
 class CustomerViewSet(viewsets.ModelViewSet):
     queryset = Customer.objects.all()
     serializer_class = CustomerSerializer
