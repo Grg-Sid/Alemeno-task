@@ -12,7 +12,7 @@
 ## 4. Get Request to view a particular Loan Details
 ![loan-det](https://github.com/Grg-Sid/Alemeno-task/assets/106266279/fde700c3-64af-4957-a82d-f3b9c4ff1b0c)
 
-## 5. Get Requestt to view all the Loans of a given Customer
+## 5. Get Request to view all the Loans of a given Customer
 ![loans](https://github.com/Grg-Sid/Alemeno-task/assets/106266279/806c8cd3-d1cb-4d36-9220-9d756019cd81)
 
 # SETUP
