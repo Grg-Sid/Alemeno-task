@@ -17,6 +17,14 @@
 
 # SETUP
 
+## Docker Setup
+
+```
+docker-compose up --build -d
+```
+
+## Local Setup
+
 1. Clone the repository:
 
 ```CMD
